@@ -1,10 +1,22 @@
 ---
-name: MyWsq
-extra: https://wsq.cool
+name: Resume online
+extra: 👏 Your resume is generated successfully.
 attrs:
-  Phone: 188****6515
-  Email: wsq961@outlook.com
-  Github: https://github.com/myWsq
+  Contact: phone number/email
+  Website: https://github.com/myWsq
+  Others: something else
+---
+
+## Features
+
+- 💡 Use "##" to insert section title. Like this "## Features".
+- 💡 Use "###" to insert sub title.
+- 💡 Use "\:time\[start-end\]" to insert time.
+- 💡 Support bold, italic, list, part-line, break-line
+- 💡 Don't forget remove page padding when printing.
+
+_And there is a recommended resume template below._
+
 ---
 
 ## Skills
@@ -25,6 +37,7 @@ attrs:
 ---
 
 ## Work Experience
+
 ### Xiaomi Beijing - System Security Apartment :time[2019.07 - today]
 
 - Outstanding graduate
@@ -34,7 +47,7 @@ attrs:
 
 ## Open Source Projects
 
-**Processor**: A simple and lightweight JavaScript data processing tool. 
+**Processor**: A simple and lightweight JavaScript data processing tool.
 
 Live Demo: [https://mywsq.github.io/processor](https://mywsq.github.io/processor)
 
@@ -46,22 +59,9 @@ Docs: [https://scroom.wsq.cool](https://scroom.wsq.cool)
 
 Example: [https://mywsq.github.io/fast-raf/example](https://mywsq.github.io/fast-raf/example)
 
-
 :br
 :br
-:br
-:br
-:br
-:br
-:br
-:br
-:br
-:br
-:br
-:br
-:br
-:br
-⬆️ Auto generate auxiliary line for multiple page
+👆 Auto generate auxiliary line for multiple page
 :br
 :br
 :br

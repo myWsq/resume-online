@@ -145,7 +145,7 @@ const components = {
   "basic-info": BasicInfo,
 };
 
-const ResumeMain: React.FunctionComponent<{ md: string }> = (props) => {
+const ResumeRenderer: React.FunctionComponent<{ md: string }> = (props) => {
   return (
     <div className="w-[21cm] max-w-full relative overflow-hidden">
       <ReactMarkdown
@@ -166,7 +166,7 @@ const ResumeMain: React.FunctionComponent<{ md: string }> = (props) => {
           "hr",
           "br",
           "strong",
-          "i",
+          "em",
           "a",
         ]}
       >
@@ -186,4 +186,4 @@ const ResumeMain: React.FunctionComponent<{ md: string }> = (props) => {
     </div>
   );
 };
-export default ResumeMain;
+export default ResumeRenderer;
