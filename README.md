@@ -18,8 +18,8 @@ Generate your brilliant resume and save it to gist.
 
 ## Todo list
 
-[] Provide a editor for preview
-[] Support custom theme
+- [ ] Provide a editor for preview
+- [ ] Support custom theme
 
 ## License
 
