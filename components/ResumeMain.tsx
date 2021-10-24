@@ -62,7 +62,7 @@ const BasicInfo: React.FunctionComponent<{
               Object.entries(attrs).map((item) => (
                 <tr key={item[0]}>
                   <td className="pr-3">{item[0]}:</td>
-                  <td className="font-medium">
+                  <td>
                     <AutoLink>{item[1]}</AutoLink>
                   </td>
                 </tr>

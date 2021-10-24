@@ -2,26 +2,29 @@
 name: MyWsq
 extra: https://wsq.cool
 attrs:
-  Phone: 188xxx6515
+  Phone: 188****6515
   Email: wsq961@outlook.com
   Github: https://github.com/myWsq
 ---
 
-## Skill
+## Skills
 
-1. Web Frontend Basic, Frontend Engineering Design, Web Animation, Docker/Kubernetes
-1. Node.js, Python
+1. Web Frontend Basic | Frontend Engineering Design | Web Animation | Docker/Kubernetes
+1. Node.js | Python
 1. A little bit of UI design
 
 ---
 
-## Education/Work
+## Education
 
 ### BUPT/BUU - Computer Science :time[2015.07 - 2019.09]
 
 - The Founder of Lantu Studio of BUPT
 - Outstanding Graduation Design
 
+---
+
+## Work Experience
 ### Xiaomi Beijing - System Security Apartment :time[2019.07 - today]
 
 - Outstanding graduate
@@ -43,10 +46,7 @@ Docs: [https://scroom.wsq.cool](https://scroom.wsq.cool)
 
 Example: [https://mywsq.github.io/fast-raf/example](https://mywsq.github.io/fast-raf/example)
 
-:br
-:br
-:br
-:br
+
 :br
 :br
 :br
