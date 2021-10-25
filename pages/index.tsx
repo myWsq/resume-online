@@ -41,10 +41,25 @@ interface HomePageProps {
   error?: string;
 }
 
+const ButtonGroup: React.FunctionComponent<{ gistUrl: string }> = ({
+  gistUrl,
+}) => {
+  return (
+    <div className="flex flex-col md:flex-row gap-3">
+      <Button color="primary" onClick={() => window.print()}>
+        Export
+      </Button>
+      <Button onClick={() => window.open(gistUrl, "_blank")}>Visit Gist</Button>
+    </div>
+  );
+};
+
 const Home: NextPage<HomePageProps> = ({ user, config, error }) => {
   if (error) {
     return <ErrorPanel error={error}></ErrorPanel>;
   }
+
+  const gistUrl = `https://gist.github.com/${user.username}/${config.id}`;
 
   return (
     <div className="max-w-full w-min mx-auto self-center px-3 print:px-0 pb-12 print:pb-0">
@@ -52,28 +67,20 @@ const Home: NextPage<HomePageProps> = ({ user, config, error }) => {
         <div className="flex">
           <h1 className="text-xl font-bold text-primary-500">Resume Online</h1>
         </div>
-        <div>
-          <Button
-            color="primary"
-            className="mr-3 hidden md:inline-block"
-            onClick={() => window.print()}
-          >
-            Export
-          </Button>
-          <Button
-            className="mr-3"
-            onClick={() =>
-              window.open(
-                `https://gist.github.com/${user.username}/${config.id}`,
-                "_blank"
-              )
-            }
-          >
-            Visit Gist
-          </Button>
-          <Avatar name={user.username} src={user.avatar}></Avatar>
+        <div className="flex">
+          <div className="hidden md:block">
+            <ButtonGroup gistUrl={gistUrl}></ButtonGroup>
+          </div>
+          <Avatar
+            className="ml-3"
+            name={user.username}
+            src={user.avatar}
+          ></Avatar>
         </div>
       </nav>
+      <div className="md:hidden mb-3 print:hidden">
+        <ButtonGroup gistUrl={gistUrl}></ButtonGroup>
+      </div>
       <div className="border-2 border-gray-400 border-dashed print:border-0">
         <ResumeRenderer md={config.md}></ResumeRenderer>
       </div>

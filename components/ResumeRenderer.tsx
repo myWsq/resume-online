@@ -220,7 +220,6 @@ const ResumeRenderer: React.FunctionComponent<{ md: string }> = (props) => {
   } | null>(null);
 
   useEffect(() => {
-    console.log(curSize, exceptSize);
     if (curSize && exceptSize) {
       const scale = curSize.width / exceptSize.width;
       const height = exceptSize.height * scale;
@@ -234,7 +233,7 @@ const ResumeRenderer: React.FunctionComponent<{ md: string }> = (props) => {
   return (
     <div
       ref={target}
-      className="w-[21cm] max-w-full relative overflow-hidden"
+      className="w-[21cm] max-w-full relative overflow-hidden print:overflow-visible"
       style={{
         height: displayConfig?.height + "px",
       }}
@@ -242,6 +241,7 @@ const ResumeRenderer: React.FunctionComponent<{ md: string }> = (props) => {
       <Measurement md={props.md} />
       {exceptSize && displayConfig && (
         <div
+          className="print:!transform-none"
           style={{
             width: exceptSize.width + "px",
             height: exceptSize.height + "px",
