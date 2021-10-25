@@ -11,15 +11,20 @@ import {
   useSetRecoilState,
 } from "recoil";
 import useResizeObserver from "@react-hook/resize-observer";
+import { ErrorBoundary, FallbackProps } from "react-error-boundary";
 
 function remarkTransform() {
   return (tree: any) => {
     visit(tree, ["yaml"], (node) => {
-      const props: any = yaml.load(node.value);
-      node.type = "containerDirective";
-      node.name = "basic-info";
-      node.attributes = props;
-      return node;
+      try {
+        const props: any = yaml.load(node.value);
+        node.type = "containerDirective";
+        node.name = "basic-info";
+        node.attributes = props;
+        return node;
+      } catch (error) {
+        console.warn(error);
+      }
     });
     visit(
       tree,
@@ -205,7 +210,7 @@ const Measurement: React.FunctionComponent<{ md: string }> = (props) => {
   );
 };
 
-const ResumeRenderer: React.FunctionComponent<{ md: string }> = (props) => {
+const ResumeRendererMain: React.FunctionComponent<{ md: string }> = (props) => {
   const exceptSize = useRecoilValue(exceptSizeState);
   const [curSize, setCurSize] = useRecoilState(curSizeState);
   const target = useRef(null);
@@ -261,9 +266,20 @@ const ResumeRenderer: React.FunctionComponent<{ md: string }> = (props) => {
           ))}
         </div>
       )}
-
-      {/* 分页提示 */}
     </div>
   );
 };
+
+const ErrorFallback: React.FunctionComponent<FallbackProps> = (props) => {
+  return <div className="text-red-500 p-5">{props.error.message}</div>;
+};
+
+const ResumeRenderer: React.FunctionComponent<{ md: string }> = (props) => {
+  return (
+    <ErrorBoundary FallbackComponent={ErrorFallback}>
+      <ResumeRendererMain md={props.md}></ResumeRendererMain>
+    </ErrorBoundary>
+  );
+};
+
 export default ResumeRenderer;
