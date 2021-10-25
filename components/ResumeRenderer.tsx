@@ -3,7 +3,14 @@ import remarkFrontmatter from "remark-frontmatter";
 import remarkDirective from "remark-directive";
 import { visit } from "unist-util-visit";
 import yaml from "js-yaml";
-import { AnchorHTMLAttributes } from "react";
+import { AnchorHTMLAttributes, useEffect, useRef, useState } from "react";
+import {
+  atom,
+  useRecoilState,
+  useRecoilValue,
+  useSetRecoilState,
+} from "recoil";
+import useResizeObserver from "@react-hook/resize-observer";
 
 function remarkTransform() {
   return (tree: any) => {
@@ -145,44 +152,117 @@ const components = {
   "basic-info": BasicInfo,
 };
 
-const ResumeRenderer: React.FunctionComponent<{ md: string }> = (props) => {
+const exceptSizeState = atom<{ width: number; height: number } | null>({
+  key: "ResumeRenderer-exceptSizeState",
+  default: null,
+});
+
+const curSizeState = atom<{ width: number; height: number } | null>({
+  key: "ResumeRenderer-curSizeState",
+  default: null,
+});
+
+const Content: React.FunctionComponent<{ md: string }> = (props) => {
   return (
-    <div className="w-[21cm] max-w-full relative overflow-hidden">
-      <ReactMarkdown
-        className="text-gray-800 p-8 space-y-3 text-sm"
-        skipHtml
-        remarkPlugins={[remarkFrontmatter, remarkDirective, remarkTransform]}
-        // @ts-ignore
-        components={components}
-        allowedElements={[
-          "basic-info",
-          "h2",
-          "h3",
-          "time",
-          "ul",
-          "ol",
-          "li",
-          "p",
-          "hr",
-          "br",
-          "strong",
-          "em",
-          "a",
-        ]}
-      >
-        {props.md}
-      </ReactMarkdown>
+    <ReactMarkdown
+      className="text-gray-800 p-8 space-y-3 text-sm w-[21cm] min-w-[21cm]"
+      skipHtml
+      remarkPlugins={[remarkFrontmatter, remarkDirective, remarkTransform]}
+      // @ts-ignore
+      components={components}
+      allowedElements={[
+        "basic-info",
+        "h2",
+        "h3",
+        "time",
+        "ul",
+        "ol",
+        "li",
+        "p",
+        "hr",
+        "br",
+        "strong",
+        "em",
+        "a",
+      ]}
+    >
+      {props.md}
+    </ReactMarkdown>
+  );
+};
+
+const Measurement: React.FunctionComponent<{ md: string }> = (props) => {
+  const target = useRef(null);
+  const setExceptSize = useSetRecoilState(exceptSizeState);
+  useResizeObserver(target, ({ contentRect }) => setExceptSize(contentRect));
+
+  return (
+    <div className="absolute pointer-events-none overflow-hidden w-0 h-0">
+      <div className="min-w-min" ref={target}>
+        <Content md={props.md}></Content>
+      </div>
+    </div>
+  );
+};
+
+const ResumeRenderer: React.FunctionComponent<{ md: string }> = (props) => {
+  const exceptSize = useRecoilValue(exceptSizeState);
+  const [curSize, setCurSize] = useRecoilState(curSizeState);
+  const target = useRef(null);
+  useResizeObserver(target, ({ contentRect }) => setCurSize(contentRect));
+
+  const [displayConfig, setDisplayConfig] = useState<{
+    height: number;
+    scale: number;
+    // virtualWidth: number;
+    // virtualHeight: number;
+    // transform: string;
+  } | null>(null);
+
+  useEffect(() => {
+    console.log(curSize, exceptSize);
+    if (curSize && exceptSize) {
+      const scale = curSize.width / exceptSize.width;
+      const height = exceptSize.height * scale;
+      setDisplayConfig({
+        height,
+        scale,
+      });
+    }
+  }, [curSize, exceptSize]);
+
+  return (
+    <div
+      ref={target}
+      className="w-[21cm] max-w-full relative overflow-hidden"
+      style={{
+        height: displayConfig?.height + "px",
+      }}
+    >
+      <Measurement md={props.md} />
+      {exceptSize && displayConfig && (
+        <div
+          style={{
+            width: exceptSize.width + "px",
+            height: exceptSize.height + "px",
+            transform: `scale(${displayConfig.scale})`,
+            transformOrigin: "left top",
+          }}
+        >
+          <Content md={props.md}></Content>
+          {[...new Array(10)].map((_, i) => (
+            <div
+              key={i}
+              className="absolute border-b-2 border-dashed border-gray-400 w-full overflow-hidden print:hidden"
+              style={{
+                top: (exceptSize.width / (21 / 29.4)) * (i + 1) + "px",
+              }}
+            ></div>
+          ))}
+        </div>
+      )}
 
       {/* 分页提示 */}
-      {[...new Array(10)].map((_, i) => (
-        <div
-          key={i}
-          className="absolute border-b-2 border-dashed border-gray-400 w-full overflow-hidden print:hidden"
-          style={{
-            top: 29.6 * (i + 1) + "cm",
-          }}
-        ></div>
-      ))}
     </div>
   );
 };

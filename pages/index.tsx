@@ -47,15 +47,15 @@ const Home: NextPage<HomePageProps> = ({ user, config, error }) => {
   }
 
   return (
-    <div className="max-w-full w-min mx-auto self-center px-5 print:px-0 pb-12 print:pb-0">
-      <nav className="print:hidden flex justify-between py-5">
+    <div className="max-w-full w-min mx-auto self-center px-3 print:px-0 pb-12 print:pb-0">
+      <nav className="print:hidden flex justify-between py-5 px-1">
         <div className="flex">
           <h1 className="text-xl font-bold text-primary-500">Resume Online</h1>
         </div>
         <div>
           <Button
             color="primary"
-            className="mr-3"
+            className="mr-3 hidden md:inline-block"
             onClick={() => window.print()}
           >
             Export
