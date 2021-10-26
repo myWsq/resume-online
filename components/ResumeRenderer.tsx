@@ -107,7 +107,7 @@ const H2: React.FunctionComponent = (props) => {
 };
 
 const H3: React.FunctionComponent = (props) => {
-  return <h3 {...props} className="text-gray-900 font-medium !mt-4 !mb-3"></h3>;
+  return <h3 {...props} className="text-gray-900 font-medium !mt-3 !mb-2"></h3>;
 };
 
 const Hr: React.FunctionComponent = (props) => {
@@ -181,7 +181,7 @@ const Content: React.FunctionComponent<{
   return (
     <div ref={props.contentRef}>
       <ReactMarkdown
-        className="text-gray-800 p-8 space-y-3 text-sm"
+        className="text-gray-800 p-8 space-y-2 text-sm"
         skipHtml
         remarkPlugins={[remarkFrontmatter, remarkDirective, remarkTransform]}
         // @ts-ignore
