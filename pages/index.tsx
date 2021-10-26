@@ -118,9 +118,9 @@ const Home: NextPage<HomePageProps> = ({ user, config, error }) => {
       {/* user interface */}
       <div className="flex flex-col h-screen print:hidden">
         <nav className="border-b">
-          <div className="py-5 md:px-12 px-5 flex justify-between mx-auto">
+          <div className="py-3 md:py-5 md:px-12 px-5 flex justify-between mx-auto">
             <div className="flex items-center">
-              <h1 className="text-xl font-bold">
+              <h1 className="text-lg md:text-xl font-bold">
                 <span className="text-primary-500">Resume</span> Online
               </h1>
               <a
