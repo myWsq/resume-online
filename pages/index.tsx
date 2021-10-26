@@ -1,12 +1,12 @@
 import type { NextPage, GetServerSideProps } from "next";
-import { Avatar, Button } from "@vechaiui/react";
+import { Avatar, Button, cx } from "@vechaiui/react";
 import ResumeRenderer from "../components/ResumeRenderer";
 import { AuthUser, getAuthUser } from "../services/get-auth";
 import ErrorPanel from "../components/ErrorPanel";
 import { getGistConfig, GistConfig } from "../services/get-gist-config";
 import ResumeEditor from "../components/ResumeEditor";
-import { useState } from "react";
-import { useRecoilState } from "recoil";
+import { useRef, useState } from "react";
+import { useEvent, useMedia } from "react-use";
 
 export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
   const accessToken = req.cookies["resume_online_access_token"];
@@ -57,9 +57,54 @@ const ButtonGroup: React.FunctionComponent<{ gistUrl: string }> = ({
   );
 };
 
+const Tabs: React.FunctionComponent<{
+  names: string[];
+  value: string;
+  onChange?: (val: string) => void;
+  className?: string;
+}> = ({ names, value, onChange, ...props }) => {
+  return (
+    <div {...props}>
+      <div className="flex space-x-1 border-b font-medium text-gray-500 px-2">
+        {names.map((name) => (
+          <span
+            key={name}
+            onClick={() => onChange?.(name)}
+            className={cx(
+              "capitalize px-3 py-2 text-sm block",
+              name === value &&
+                "border-b-2 border-primary-500 -mb-0.5 text-gray-900"
+            )}
+          >
+            {name}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 const Home: NextPage<HomePageProps> = ({ user, config, error }) => {
   const [md, setMd] = useState(config.md);
   const gistUrl = `https://gist.github.com/${user.username}/${config.id}`;
+  const printContainerRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  // generate a snapshot of the renderer before print
+  useEvent("beforeprint", () => {
+    const content = contentRef.current;
+    const target = printContainerRef.current;
+    if (target && content) {
+      target.innerHTML = content.innerHTML;
+    }
+  });
+
+  const isWide = useMedia("(min-width: 768px)");
+
+  const [tabActive, setTabActive] = useState<string>("preview");
+
+  const showEditor = isWide || tabActive === "editor";
+  const showPreview = isWide || tabActive === "preview";
 
   if (error) {
     return <ErrorPanel error={error}></ErrorPanel>;
@@ -67,15 +112,16 @@ const Home: NextPage<HomePageProps> = ({ user, config, error }) => {
 
   return (
     <>
-      <div className="hidden print:block">
-        <ResumeRenderer md={md}></ResumeRenderer>
-      </div>
+      {/* print only */}
+      <div className="hidden print:block" ref={printContainerRef}></div>
+
+      {/* user interface */}
       <div className="flex flex-col h-screen print:hidden">
         <nav className="border-b">
-          <div className="py-5 md:px-12 px-2 flex justify-between mx-auto">
+          <div className="py-5 md:px-12 px-5 flex justify-between mx-auto">
             <div className="flex items-center">
-              <h1 className="text-xl font-bold text-primary-500">
-                Resume Online
+              <h1 className="text-xl font-bold">
+                <span className="text-primary-500">Resume</span> Online
               </h1>
               <a
                 href="https://github.com/myWsq/resume-online/stargazers"
@@ -99,22 +145,42 @@ const Home: NextPage<HomePageProps> = ({ user, config, error }) => {
             </div>
           </div>
         </nav>
-        <div className="md:hidden my-3 px-2">
+
+        {!isWide && (
+          <Tabs
+            names={["preview", "editor"]}
+            value={tabActive}
+            onChange={setTabActive}
+          ></Tabs>
+        )}
+
+        {/* mobile button group */}
+        {/* <div className="md:hidden my-3 px-2">
           <ButtonGroup gistUrl={gistUrl}></ButtonGroup>
-        </div>
+        </div> */}
+
+        {/* main */}
         <div className="flex-grow flex flex-col min-h-0">
-          <div>tab</div>
           <div className="flex-grow flex min-h-0">
-            <div className="w-1/2">
-              <ResumeEditor
-                className="max-w-[21cm] ml-auto"
-                value={md}
-                onChange={(e) => setMd(e.target.value)}
-              ></ResumeEditor>
-            </div>
-            <div className="w-1/2 overflow-y-scroll">
-              <ResumeRenderer md={md}></ResumeRenderer>
-            </div>
+            {showEditor && (
+              <div className="w-full md:w-1/2">
+                <ResumeEditor
+                  className="max-w-[21cm] ml-auto"
+                  value={md}
+                  onChange={(e) => setMd(e.target.value)}
+                ></ResumeEditor>
+              </div>
+            )}
+            {showPreview && (
+              <div className="md:w-1/2 overflow-y-scroll">
+                <div>
+                  <ResumeRenderer
+                    md={md}
+                    contentRef={contentRef}
+                  ></ResumeRenderer>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -3,7 +3,13 @@ import remarkFrontmatter from "remark-frontmatter";
 import remarkDirective from "remark-directive";
 import { visit } from "unist-util-visit";
 import yaml from "js-yaml";
-import { AnchorHTMLAttributes, useEffect, useRef, useState } from "react";
+import React, {
+  AnchorHTMLAttributes,
+  memo,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import {
   atom,
   useRecoilState,
@@ -12,6 +18,7 @@ import {
 } from "recoil";
 import useResizeObserver from "@react-hook/resize-observer";
 import { ErrorBoundary, FallbackProps } from "react-error-boundary";
+import useMergedRef from "@react-hook/merged-ref";
 
 function remarkTransform() {
   return (tree: any) => {
@@ -167,61 +174,80 @@ const curSizeState = atom<{ width: number; height: number } | null>({
   default: null,
 });
 
-const Content: React.FunctionComponent<{ md: string }> = (props) => {
+const Content: React.FunctionComponent<{
+  md: string;
+  contentRef?: React.LegacyRef<HTMLDivElement>;
+}> = (props) => {
   return (
-    <ReactMarkdown
-      className="text-gray-800 p-8 space-y-3 text-sm w-[21cm] min-w-[21cm]"
-      skipHtml
-      remarkPlugins={[remarkFrontmatter, remarkDirective, remarkTransform]}
-      // @ts-ignore
-      components={components}
-      allowedElements={[
-        "basic-info",
-        "h2",
-        "h3",
-        "time",
-        "ul",
-        "ol",
-        "li",
-        "p",
-        "hr",
-        "br",
-        "strong",
-        "em",
-        "a",
-      ]}
-    >
-      {props.md}
-    </ReactMarkdown>
+    <div ref={props.contentRef}>
+      <ReactMarkdown
+        className="text-gray-800 p-8 space-y-3 text-sm"
+        skipHtml
+        remarkPlugins={[remarkFrontmatter, remarkDirective, remarkTransform]}
+        // @ts-ignore
+        components={components}
+        allowedElements={[
+          "basic-info",
+          "h2",
+          "h3",
+          "time",
+          "ul",
+          "ol",
+          "li",
+          "p",
+          "hr",
+          "br",
+          "strong",
+          "em",
+          "a",
+        ]}
+      >
+        {props.md}
+      </ReactMarkdown>
+    </div>
   );
 };
 
-const Measurement: React.FunctionComponent<{ md: string }> = (props) => {
+const Measurement: React.FunctionComponent<{
+  md: string;
+  contentRef?: React.LegacyRef<HTMLDivElement>;
+}> = (props) => {
   const target = useRef(null);
   const setExceptSize = useSetRecoilState(exceptSizeState);
   useResizeObserver(target, ({ contentRect }) => setExceptSize(contentRect));
 
   return (
     <div className="absolute pointer-events-none overflow-hidden w-0 h-0">
-      <div className="min-w-min" ref={target}>
-        <Content md={props.md}></Content>
+      <div className="w-[21cm] min-w-[21cm]" ref={target}>
+        <Content md={props.md} contentRef={props.contentRef}></Content>
       </div>
     </div>
   );
 };
 
-const ResumeRendererMain: React.FunctionComponent<{ md: string }> = (props) => {
+const ResumeRendererMain: React.FunctionComponent<{
+  md: string;
+  contentRef?: React.Ref<HTMLDivElement>;
+}> = (props) => {
   const exceptSize = useRecoilValue(exceptSizeState);
   const [curSize, setCurSize] = useRecoilState(curSizeState);
   const target = useRef(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const mergedContentRefs: React.Ref<HTMLDivElement>[] = [contentRef];
+
+  if (props.contentRef) {
+    mergedContentRefs.push(props.contentRef);
+  }
+
+  const mergeContentRef = useMergedRef(...mergedContentRefs);
+
   useResizeObserver(target, ({ contentRect }) => setCurSize(contentRect));
 
   const [displayConfig, setDisplayConfig] = useState<{
     height: number;
     scale: number;
-    // virtualWidth: number;
-    // virtualHeight: number;
-    // transform: string;
   } | null>(null);
 
   useEffect(() => {
@@ -235,38 +261,48 @@ const ResumeRendererMain: React.FunctionComponent<{ md: string }> = (props) => {
     }
   }, [curSize, exceptSize]);
 
+  useEffect(() => {
+    const content = contentRef.current;
+    const container = containerRef.current;
+    if (content && container) {
+      container.innerHTML = content.innerHTML;
+    }
+  }, [props.md, contentRef.current, containerRef.current]);
+
   return (
-    <div
-      ref={target}
-      className="w-[21cm] max-w-full relative overflow-hidden print:overflow-visible"
-      style={{
-        height: displayConfig?.height + "px",
-      }}
-    >
-      <Measurement md={props.md} />
-      {exceptSize && displayConfig && (
-        <div
-          className="print:!transform-none"
-          style={{
-            width: exceptSize.width + "px",
-            height: exceptSize.height + "px",
-            transform: `scale(${displayConfig.scale})`,
-            transformOrigin: "left top",
-          }}
-        >
-          <Content md={props.md}></Content>
-          {[...new Array(10)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute border-b-2 border-dashed border-gray-400 w-full overflow-hidden print:hidden"
-              style={{
-                top: (exceptSize.width / (21 / 29.4)) * (i + 1) + "px",
-              }}
-            ></div>
-          ))}
-        </div>
-      )}
-    </div>
+    <>
+      <Measurement md={props.md} contentRef={mergeContentRef} />
+      <div
+        ref={target}
+        className="w-[21cm] max-w-full relative overflow-hidden print:overflow-visible"
+        style={{
+          height: displayConfig?.height + "px",
+        }}
+      >
+        {exceptSize && displayConfig && (
+          <div
+            className="print:!transform-none"
+            style={{
+              width: exceptSize.width + "px",
+              height: exceptSize.height + "px",
+              transform: `scale(${displayConfig.scale})`,
+              transformOrigin: "left top",
+            }}
+          >
+            <div ref={containerRef}></div>
+            {[...new Array(10)].map((_, i) => (
+              <div
+                key={i}
+                className="absolute border-b-2 border-dashed border-gray-400 w-full overflow-hidden print:hidden"
+                style={{
+                  top: (exceptSize.width / (21 / 29.4)) * (i + 1) + "px",
+                }}
+              ></div>
+            ))}
+          </div>
+        )}
+      </div>
+    </>
   );
 };
 
@@ -274,12 +310,20 @@ const ErrorFallback: React.FunctionComponent<FallbackProps> = (props) => {
   return <div className="text-red-500 p-5">{props.error.message}</div>;
 };
 
-const ResumeRenderer: React.FunctionComponent<{ md: string }> = (props) => {
+const ResumeRenderer = memo<{
+  md: string;
+  contentRef?: React.Ref<HTMLDivElement>;
+}>((props) => {
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
-      <ResumeRendererMain md={props.md}></ResumeRendererMain>
+      <ResumeRendererMain
+        md={props.md}
+        contentRef={props.contentRef}
+      ></ResumeRendererMain>
     </ErrorBoundary>
   );
-};
+});
+
+ResumeRenderer.displayName = "ResumeRenderer";
 
 export default ResumeRenderer;
