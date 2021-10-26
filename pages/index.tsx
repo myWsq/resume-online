@@ -161,18 +161,20 @@ const Home: NextPage<HomePageProps> = ({ user, config, error }) => {
         {/* main */}
         <div className="flex-grow flex flex-col min-h-0">
           <div className="flex-grow flex min-h-0">
-            <div
-              className={cx(
-                "w-full md:w-1/2 flex flex-col",
-                showEditor ? "relative" : "hidden"
-              )}
-            >
-              <ResumeEditor
-                className="absolute inset-0"
-                defaultValue={config.md}
-                onChange={setMd}
-              ></ResumeEditor>
-            </div>
+            {process.browser && (
+              <div
+                className={cx(
+                  "w-full md:w-1/2 flex flex-col",
+                  showEditor ? "relative" : "hidden"
+                )}
+              >
+                <ResumeEditor
+                  className="absolute inset-0"
+                  defaultValue={config.md}
+                  onChange={setMd}
+                ></ResumeEditor>
+              </div>
+            )}
             <section
               className={cx(
                 "md:w-1/2 overflow-y-scroll",
