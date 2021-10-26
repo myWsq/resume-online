@@ -49,7 +49,7 @@ const ButtonGroup: React.FunctionComponent<{ gistUrl: string }> = ({
 }) => {
   return (
     <div className="flex flex-col md:flex-row space-y-2 md:space-x-2 md:space-y-0">
-      <Button color="primary" onClick={() => window.print()}>
+      <Button color="primary" variant="solid"  onClick={() => window.print()}>
         Export
       </Button>
       <Button onClick={() => window.open(gistUrl, "_blank")}>Visit Gist</Button>
