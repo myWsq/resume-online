@@ -39,7 +39,7 @@ _And there is a recommended resume template below._
 
 ### BUPT/BUU - Computer Science :time[2015.07 - 2019.09]
 
-- The Founder of BUPT Lantu Studio of BUPT
+- The Founder of BUPT Lantu Studio
 - Outstanding Graduation Design
 
 ---
