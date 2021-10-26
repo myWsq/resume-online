@@ -101,7 +101,7 @@ const H2: React.FunctionComponent = (props) => {
   return (
     <h2
       {...props}
-      className="text-gray-900 text-xl font-medium !mt-5 !mb-3"
+      className="text-gray-900 text-xl font-medium !mt-4 !mb-3"
     ></h2>
   );
 };
@@ -111,7 +111,7 @@ const H3: React.FunctionComponent = (props) => {
 };
 
 const Hr: React.FunctionComponent = (props) => {
-  return <hr {...props} className="!my-5"></hr>;
+  return <hr {...props} className="!my-3"></hr>;
 };
 
 const Ul: React.FunctionComponent = (props) => {

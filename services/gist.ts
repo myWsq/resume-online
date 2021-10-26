@@ -88,3 +88,32 @@ export async function getGistConfig(accessToken: string) {
   // transform the gist into a JSON object
   return transformGist(gist);
 }
+
+export async function saveGistConfig(
+  gistId: string,
+  accessToken: string,
+  content: string
+) {
+  const client = axios.create({
+    baseURL: "https://api.github.com",
+    headers: {
+      accept: "application/vnd.github.v3+json",
+      Authorization: "token " + accessToken,
+    },
+  });
+
+  const { data } = await client.patch(`/gists/${gistId}`, {
+    files: {
+      [META_FILE]: {
+        content: JSON.stringify({
+          lastUpdatedAt: new Date(),
+        }),
+      },
+      [RESUME_FILE]: {
+        content,
+      },
+    },
+  });
+
+  return data;
+}

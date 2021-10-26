@@ -26,21 +26,6 @@ const ResumeEditor: React.FunctionComponent<ResumeEditorProps> = ({
     editor: Monaco.editor.IStandaloneCodeEditor,
     monaco: typeof Monaco
   ) {
-    editor.addAction({
-      id: "custom.save",
-      label: "Save",
-      keybindings: [
-        monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S,
-        // monaco.KeyMod.chord(),
-      ],
-      contextMenuGroupId: "navigation",
-      contextMenuOrder: 1,
-      async run(e) {
-        const action = e.getAction("editor.action.formatDocument");
-        await action.run();
-      },
-    });
-
     monaco.languages.registerDocumentFormattingEditProvider("markdown", {
       provideDocumentFormattingEdits(model) {
         return [

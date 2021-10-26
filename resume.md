@@ -1,23 +1,31 @@
 ---
 name: Resume online
-extra: 👏 Your resume is generated successfully.
+extra: 💅 Beautiful resume generator. Powered by markdown.
 attrs:
-  Contact: phone number/email
-  Website: https://github.com/myWsq
-  Others: something else
+  Contact: Phone Number / Email
+  Website: https://resume-online.wsq.cool
+  Others: Something else
 ---
 
 ## Features
 
+- 💅 Live edit and preview.
+- ⚙️ Auto save to your gist.
+- 📦 Export to PDF file one-click.
+
+---
+
+## Usage
+
 - 💡 Use "##" to insert section title. Like this "## Features".
 - 💡 Use "###" to insert sub title.
-- 💡 Use "\:time\[start-end\]" to insert time.
+- 💡 Use **"\:time\[\]"** to insert time. :time[🐒 I'm here!]
 - 💡 Support bold, italic, list, part-line, break-line
 - 💡 Don't forget remove page padding when printing.
 
-_And there is a recommended resume template below._
-
 ---
+
+_And there is a recommended resume template below._
 
 ## Skills
 
@@ -31,7 +39,7 @@ _And there is a recommended resume template below._
 
 ### BUPT/BUU - Computer Science :time[2015.07 - 2019.09]
 
-- The Founder of Lantu Studio of BUPT
+- The Founder of BUPT Lantu Studio of BUPT
 - Outstanding Graduation Design
 
 ---
@@ -40,28 +48,20 @@ _And there is a recommended resume template below._
 
 ### Xiaomi Beijing - System Security Apartment :time[2019.07 - today]
 
-- Outstanding graduate
-- Mentor of fresh graduate
+- Web Frontend Engineer
+- Outstanding Graduation Design
 
 ---
 
 ## Open Source Projects
 
-**Processor**: A simple and lightweight JavaScript data processing tool.
-
-Live Demo: [https://mywsq.github.io/processor](https://mywsq.github.io/processor)
-
-**Scroom**: A smart library for cool scrolling effects, based on Intersection Observer.
-
-Docs: [https://scroom.wsq.cool](https://scroom.wsq.cool)
-
-**Fast Raf**: Better requestAnimationFrame.
-
-Example: [https://mywsq.github.io/fast-raf/example](https://mywsq.github.io/fast-raf/example)
+- **Processor**: A simple and lightweight JavaScript data processing tool. [Live Demo](https://mywsq.github.io/processor)
+- **Scroom**: A smart library for cool scrolling effects, based on Intersection Observer. [Website](https://scroom.wsq.cool)
+- **Fast Raf**: Better requestAnimationFrame. [Live Demo](https://mywsq.github.io/fast-raf/example)
 
 :br
 :br
-👆 Auto generate auxiliary line for multiple page
+👆 Auxiliary line for multiple page
 :br
 :br
 :br

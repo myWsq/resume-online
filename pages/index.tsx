@@ -1,12 +1,20 @@
 import type { NextPage, GetServerSideProps } from "next";
-import { Avatar, Button, cx } from "@vechaiui/react";
+import {
+  Avatar,
+  Button,
+  cx,
+  Spinner,
+  useMessage,
+  useNotification,
+} from "@vechaiui/react";
 import ResumeRenderer from "../components/ResumeRenderer";
 import { AuthUser, getAuthUser } from "../services/get-auth";
 import ErrorPanel from "../components/ErrorPanel";
-import { getGistConfig, GistConfig } from "../services/get-gist-config";
+import { getGistConfig, GistConfig } from "../services/gist";
 import ResumeEditor from "../components/ResumeEditor";
-import { useRef, useState } from "react";
-import { useEvent, useMedia } from "react-use";
+import { useEffect, useRef, useState } from "react";
+import { useEvent, useMedia, useDebounce, useAsyncFn } from "react-use";
+import axios from "axios";
 
 export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
   const accessToken = req.cookies["resume_online_access_token"];
@@ -44,19 +52,6 @@ interface HomePageProps {
   error?: string;
 }
 
-const ButtonGroup: React.FunctionComponent<{ gistUrl: string }> = ({
-  gistUrl,
-}) => {
-  return (
-    <div className="flex flex-col md:flex-row space-y-2 md:space-x-2 md:space-y-0">
-      <Button color="primary" variant="solid" onClick={() => window.print()}>
-        Export
-      </Button>
-      <Button onClick={() => window.open(gistUrl, "_blank")}>Visit Gist</Button>
-    </div>
-  );
-};
-
 const Tabs: React.FunctionComponent<{
   names: string[];
   value: string;
@@ -84,11 +79,34 @@ const Tabs: React.FunctionComponent<{
   );
 };
 
+const SavingSpan: React.FunctionComponent<{
+  loading: boolean;
+  className?: string;
+}> = (props) => {
+  return (
+    <div className={props.className}>
+      <div
+        className={cx(
+          "text-gray-400 flex text-sm items-center",
+          props.loading ? "flex" : "hidden"
+        )}
+      >
+        <Spinner className="mr-2 text-primary-400" />
+        <span className="hidden md:inline">Saving to gist...</span>
+      </div>
+    </div>
+  );
+};
+
 const Home: NextPage<HomePageProps> = ({ user, config, error }) => {
   const [md, setMd] = useState(config.md);
+  const [lastSavedMd, setLastSavedMd] = useState(md);
   const gistUrl = `https://gist.github.com/${user.username}/${config.id}`;
   const printContainerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+
+  const message = useMessage();
+  const notification = useNotification();
 
   // generate a snapshot of the renderer before print
   useEvent("beforeprint", () => {
@@ -100,11 +118,61 @@ const Home: NextPage<HomePageProps> = ({ user, config, error }) => {
   });
 
   const isWide = useMedia("(min-width: 768px)");
-
   const [tabActive, setTabActive] = useState<string>("preview");
-
   const showEditor = isWide || tabActive === "editor";
   const showPreview = isWide || tabActive === "preview";
+
+  const [saveState, save] = useAsyncFn((content: string) =>
+    axios.post("/api/save", {
+      gistId: config.id,
+      content,
+    })
+  );
+
+  useDebounce(
+    async () => {
+      if (md !== lastSavedMd) {
+        await save(md);
+        setLastSavedMd(md);
+      }
+    },
+    500,
+    [md]
+  );
+
+  useEffect(() => {
+    if (saveState.error) {
+      message({
+        message: saveState.error.message,
+        status: "error",
+        position: "top",
+      });
+    }
+  }, [saveState.error]);
+
+  useEffect(() => {
+    if (lastSavedMd !== md) {
+      window.onbeforeunload = () => {
+        return "Your changes have not been saved yet.";
+      };
+    } else {
+      window.onbeforeunload = null;
+    }
+  }, [lastSavedMd, md]);
+
+  useEffect(() => {
+    const isFirstView = localStorage.getItem("resume-online-view");
+    if (!isFirstView) {
+      const handler = notification({
+        title: "🖐 Hi there!",
+        status: "info",
+        description:
+          "Your changes will be save to gist automatically. Just enjoy it.",
+        position: "top-right",
+      });
+      localStorage.setItem("resume-online-view", "1");
+    }
+  }, []);
 
   if (error) {
     return <ErrorPanel error={error}></ErrorPanel>;
@@ -132,10 +200,20 @@ const Home: NextPage<HomePageProps> = ({ user, config, error }) => {
                   src="https://img.shields.io/github/stars/myWsq/resume-online?style=social"
                 />
               </a>
+              <SavingSpan className="ml-3" loading={saveState.loading} />
             </div>
             <div className="flex">
-              <div className="hidden md:block">
-                <ButtonGroup gistUrl={gistUrl}></ButtonGroup>
+              <div className="hidden md:block space-x-2">
+                <Button
+                  color="primary"
+                  variant="solid"
+                  onClick={() => window.print()}
+                >
+                  Export
+                </Button>
+                <Button onClick={() => window.open(gistUrl, "_blank")}>
+                  Visit Gist
+                </Button>
               </div>
               <Avatar
                 className="ml-3"
