@@ -49,7 +49,7 @@ const ButtonGroup: React.FunctionComponent<{ gistUrl: string }> = ({
 }) => {
   return (
     <div className="flex flex-col md:flex-row space-y-2 md:space-x-2 md:space-y-0">
-      <Button color="primary" variant="solid"  onClick={() => window.print()}>
+      <Button color="primary" variant="solid" onClick={() => window.print()}>
         Export
       </Button>
       <Button onClick={() => window.open(gistUrl, "_blank")}>Visit Gist</Button>
@@ -116,7 +116,7 @@ const Home: NextPage<HomePageProps> = ({ user, config, error }) => {
       <div className="hidden print:block" ref={printContainerRef}></div>
 
       {/* user interface */}
-      <div className="flex flex-col h-screen print:hidden">
+      <div className="flex flex-col h-screen overflow-hidden print:hidden">
         <nav className="border-b">
           <div className="py-3 md:py-5 md:px-12 px-5 flex justify-between mx-auto">
             <div className="flex items-center">
@@ -146,40 +146,37 @@ const Home: NextPage<HomePageProps> = ({ user, config, error }) => {
           </div>
         </nav>
 
-        {!isWide && (
-          <Tabs
-            names={["preview", "editor"]}
-            value={tabActive}
-            onChange={setTabActive}
-          ></Tabs>
-        )}
-
         {/* mobile button group */}
         {/* <div className="md:hidden my-3 px-2">
           <ButtonGroup gistUrl={gistUrl}></ButtonGroup>
         </div> */}
 
+        <Tabs
+          className="md:hidden"
+          names={["preview", "editor"]}
+          value={tabActive}
+          onChange={setTabActive}
+        />
+
         {/* main */}
         <div className="flex-grow flex flex-col min-h-0">
           <div className="flex-grow flex min-h-0">
             {showEditor && (
-              <div className="w-full md:w-1/2">
+              <div className="w-full md:w-1/2 flex flex-col relative">
                 <ResumeEditor
-                  className="max-w-[21cm] ml-auto"
-                  value={md}
-                  onChange={(e) => setMd(e.target.value)}
+                  className="absolute inset-0"
+                  defaultValue={config.md}
+                  onChange={setMd}
                 ></ResumeEditor>
               </div>
             )}
             {showPreview && (
-              <div className="md:w-1/2 overflow-y-scroll">
-                <div>
-                  <ResumeRenderer
-                    md={md}
-                    contentRef={contentRef}
-                  ></ResumeRenderer>
-                </div>
-              </div>
+              <section className="md:w-1/2 overflow-y-scroll">
+                <ResumeRenderer
+                  md={md}
+                  contentRef={contentRef}
+                ></ResumeRenderer>
+              </section>
             )}
           </div>
         </div>
