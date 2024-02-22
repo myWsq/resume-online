@@ -20,6 +20,6 @@ export default async function handler(
     res.status(200).end();
   } catch (error: any) {
     const response: AxiosResponse = error.response;
-    res.status(response.status).end(response.statusText);
+    res.status(response.status).end(response.data);
   }
 }
